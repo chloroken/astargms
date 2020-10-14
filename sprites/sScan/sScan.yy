@@ -68,8 +68,8 @@
     {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"1e77b7bc-e976-4d20-ba59-7f32869a21e5","tags":[],"resourceType":"GMImageLayer",},
   ],
   "parent": {
-    "name": "astar",
-    "path": "astar.yyp",
+    "name": "astargms",
+    "path": "astargms.yyp",
   },
   "resourceVersion": "1.0",
   "name": "sScan",

@@ -28,8 +28,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 /* INITIALIZATION */
 	
 	// Translate start/end coordinates to pointers
-	var start=sx<<SHIFT|sy;
-	var goal=gx<<SHIFT|gy;
+	var start=sx<<SHIFT|sy,goal=gx<<SHIFT|gy;
 	
 	// Ensure start isn't goal
 	if start==goal return(false);
@@ -49,8 +48,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	ds_priority_add(OPEN,start,COST[?start]);
 	
 	// Set a loop limit to iterations to prevent freezes
-	var loops=0;
-	var maxloops=maxscans;
+	var loops=0,maxloops=maxscans;
 
 /* MAIN LOGIC LOOP */
 	
@@ -82,29 +80,23 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 		}
 		
 		// Extract current node's coordinates 'cx,cy' from current node (bitwise operators)
-		var cx=cur>>SHIFT;
-		var cy=cur&MASK;
+		var cx=cur>>SHIFT,cy=cur&MASK;
 		
 		// 'Graph' neighbors of current node
 		for (var i=0;i<SIDES;i++){
 			
 			// Set neighbor 'i' coordinates 'nx,ny' to current node's coordinates
-			var nx=cx;
-			var ny=cy;
+			var nx=cx,ny=cy;
 			
 			// Set break flag to avoid scanning out of bounds nodes
 			var go=true;
 			
-			// Adjust x/y coordinates based on current graph loop iteration 'i'
+			// Adjust neighbor x/y coordinates based on current graph loop iteration 'i'
 			switch i{
-				// Right neighbor
-				case 0: if nx<cols nx++;else go=!go;break;
-				// Top neighbor
-				case 1: if ny>0	ny--;else go=!go;break;
-				// Left neighbor
-				case 2: if nx>0	nx--;else go=!go;break;
-				// Bottom neighbor
-				case 3: if ny<rows ny++;else go=!go;break;
+				case 0: if nx>0	nx--;else go=!go;break;		// Left neighbor
+				case 1: if ny>0	ny--;else go=!go;break;		// Top neighbor
+				case 2: if nx<cols nx++;else go=!go;break;	// Right neighbor
+				case 3: if ny<rows ny++;else go=!go;break;	// Bottom neighbor
 			}
 			
 			// If the neighbor 'i' is out of bounds, break graph loop (trashing neighbor 'i')
@@ -116,35 +108,30 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 			// If neighbor 'i' isn't on BLOCKED list
 			if !ds_list_find_index(blocked,neighbor){
 				
-				// GUI demo
+				// Set the sprite for the GUI
 				SPRITE[#nx,ny]=sScan;
-				if STEPS[#nx,ny]==0{
-					if nx!=sx||ny!=sy{
-						STEPS[#nx,ny]=loops;
-					}
-				}
+				
+				// Set the 'step' for the GUI (the number that appears on each tile)
+				if STEPS[#nx,ny]==0&&nx!=sx||ny!=sy STEPS[#nx,ny]=loops;
 				
 				/* Calculate price by searching cost map for the current node's cumulative
 				cost and increasing it by the 'movement cost' of the tile itself */
 				var price=COST[?cur]+movecost;
 				
-				/* If neighbor 'i' isn't in cost map, or its calculated price
-				is lower than neighbor 'i's existing value in the cost map
-				(this allows for correction if better path opens) */
+				/* If neighbor 'i' isn't in cost map, or its calculated price is lower than
+				neighbor 'i's existing value in cost map (allows correction if better path opens) */
 				if !ds_map_exists(COST,neighbor)||price<COST[?neighbor]{
 					
 					// Debugging
 					scans++;
 					
 					// Estimated distance to goal
-					var hx=abs(gx*size-nx*size);
-					var hy=abs(gy*size-ny*size);
+					var hx=abs(gx*size-nx*size),hy=abs(gy*size-ny*size);
+					
+					// Create a vector from start to goal
+					var t1=nx-gx,t1=ny-gy,t2=sx-gx,t2=sy-gy;
 					
 					// Break ties by following trend vector
-					var t1=nx-gx;
-					var t1=ny-gy;
-					var t2=sx-gx;
-					var t2=sy-gy;
 					var trend=abs(t1*t2-t2*t1)*tiebreaker;
 					
 					// Calculate the heuristic by combining distance and trend
@@ -194,8 +181,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 		ds_list_insert(path,0,waypoint);
 		
 		// Get x/y coordinates of waypoint
-		var wx=waypoint>>SHIFT;
-		var wy=waypoint&MASK;
+		var wx=waypoint>>SHIFT,wy=waypoint&MASK;
 		
 		// GUI Debugging
 		SPRITE[#wx,wy]=sPath;
@@ -219,7 +205,6 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	}
 	
 /* CLEANUP */
-
 	ds_map_destroy(PARENT);
 	length=pathlen;
 	var us2=get_timer();

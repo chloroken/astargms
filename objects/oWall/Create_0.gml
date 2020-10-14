@@ -1,5 +1,5 @@
 // Add this wall to the blocked grid
-blockerX=x div SIZE;
-blockerY=y div SIZE;
-blockernode=blockerX<<SHIFT|blockerY;
+var blockerX=x div SIZE;
+var blockerY=y div SIZE;
+var blockernode=blockerX<<SHIFT|blockerY;
 ds_list_add(global.BLOCKED,blockernode);

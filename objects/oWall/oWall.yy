@@ -26,8 +26,8 @@
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "astar",
-    "path": "astar.yyp",
+    "name": "astargms",
+    "path": "astargms.yyp",
   },
   "resourceVersion": "1.0",
   "name": "oWall",

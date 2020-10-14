@@ -958,8 +958,8 @@
     "PhysicsWorldPixToMetres": 0.1,
   },
   "parent": {
-    "name": "astar",
-    "path": "astar.yyp",
+    "name": "astargms",
+    "path": "astargms.yyp",
   },
   "resourceVersion": "1.0",
   "name": "rDemo",

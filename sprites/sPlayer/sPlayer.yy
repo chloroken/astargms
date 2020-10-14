@@ -72,8 +72,8 @@
     {"visible":true,"isLocked":false,"blendMode":0,"opacity":100.0,"displayName":"default","resourceVersion":"1.0","name":"303a9840-4f97-4f05-a455-0e326c0aea0d","tags":[],"resourceType":"GMImageLayer",},
   ],
   "parent": {
-    "name": "astar",
-    "path": "astar.yyp",
+    "name": "astargms",
+    "path": "astargms.yyp",
   },
   "resourceVersion": "1.0",
   "name": "sPlayer",
