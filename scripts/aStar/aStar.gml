@@ -27,44 +27,46 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	
 /* INITIALIZATION */
 	
-	// Translate start/end coordinates to pointers
+	// Translate start/end coordinates 'sx','sy','gx','gy' to pointers 'start' and 'goal'
 	var start=sx<<SHIFT|sy,goal=gx<<SHIFT|gy;
 	
-	// Ensure start isn't goal
+	// Ensure 'start' isn't 'goal'
 	if start==goal return(false);
 	
-	// Check if start or goal node is blocked
+	// Ensure 'start' nor 'goal' is 'blocked'
 	if ds_list_find_index(blocked,start)||ds_list_find_index(blocked,goal) return(false);
 	
-	// Clear demo GUI
+	// Clear grids 'SPRITE' and 'STEPS' used for demo GUI
 	ds_grid_clear(SPRITE,0);
 	ds_grid_clear(STEPS,0);
 	
-	// Set cost of start node
+	// Set 'COST' map's 'start' pointer to 0
 	COST[?start]=0;
+	
+	// Set the initial 'waypoint' to -1 to calibrate to 0 after first run
 	var waypoint=-1;
 	
-	// Add start node to OPEN queue
+	// Add 'start' pointer to 'OPEN' priority queue
 	ds_priority_add(OPEN,start,COST[?start]);
 	
-	// Set a loop limit to iterations to prevent freezes
+	// Set a 'loops' limit, configurable in the create step of 'oPlayer'
 	var loops=0,maxloops=maxscans;
 
 /* MAIN LOGIC LOOP */
 	
-	// Run loop until OPEN queue is exhausted or loop limit reached
+	// Run this loop until 'OPEN' queue is exhausted or 'loops' reaches 'maxloops'
 	while !ds_priority_empty(OPEN)&&loops<maxloops{
 		
-		// Increase loop count
+		// Increase 'loops' count
 		loops++;
 
-		// Get current node 'cur' by removing lowest priority value from OPEN priority queue
+		// Get current pointer 'cur' by removing lowest priority value from 'OPEN' priority queue
 		var cur=ds_priority_delete_min(OPEN);
 		
-		// Check if current node is goal node
+		// Check if 'cur' pointer is 'goal' pointer
 		if cur==goal{
 			
-			// Set initial waypoint node
+			// Set initial 'waypoint' pointer to 'goal'
 			waypoint=goal;
 			
 			// Destroy temporary data structures
