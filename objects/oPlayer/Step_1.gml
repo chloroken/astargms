@@ -1,4 +1,4 @@
-/// @desc Player inputs
+/// @desc Player inputs (A* script)
 
 // If player object isn't currently moving along a path
 if !pathing{

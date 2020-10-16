@@ -18,12 +18,12 @@ stringz="CONTROLS: Left click to path, right click to relocate.";
 draw_text(32,room_height-string_height(stringz)-6,stringz);
 
 // Draw debugging stat strings
-if nodes!=0{
-	lengthstring=string("Found a "+string(length)+"-tile long path ");
-	timestring=string("in "+string(time/1000)+" milliseconds, ");
-	scanstring=string("analyzing "+string(nodes)+"total nodes, ");
-	wallstring=string("avoiding "+string(walls)+" walls.");
-	debugstring=string(lengthstring)+string(timestring)+string(scanstring)+string(wallstring);
+if scans!=0{
+	lengthstring=string("The A* script found a ("+string(length)+")-tile long path ");
+	timestring=string("in ("+string(time/1000)+") milliseconds, ");
+	scanstring=string("analyzing ("+string(scans)+") total nodes ");
+	//wallstring=string("while avoiding "+string(walls)+" walls.");
+	debugstring=string(lengthstring)+string(timestring)+string(scanstring);//+string(wallstring);
 	draw_text(32,6,debugstring);
 }
 

@@ -1,20 +1,11 @@
-/// @arg StartX {real} The starting node x position
-/// @arg StartY {real} The starting node y position
-/// @arg GoalX {real} The goal node x position
-/// @arg GoalY {real} The goal node y position
-/// @arg Columns {real} The number of columns in the grid
-/// @arg Rows {real} The number of rows in the grid
-/// @arg Tilesize {real} The size of the tiles
-/// @arg BlockedList {ds_list} Ds_list of blocked nodes (previously started & filled)
 function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	
 /* CONFIGURATION */
 	
 	// Demo debug vars
 	var us=get_timer();					// Debug timer in microseconds
-	var scans=0;						// Debug counter that shows total scans
-	var pathlen=0;						// Debug counter that shows path length
-	var bumps=0;						// Debug counter that shows the number of walls bumped into
+	scans=0;							// Debug counter that shows total scans
+	length=0;						// Debug counter that shows path length
 	
 	// Logic vars
 	var movecost=1;						// The 'cost' of a moving from node to node.
@@ -54,7 +45,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 
 /* MAIN LOGIC LOOP */
 	
-	// Run this loop until 'OPEN' queue is exhausted or 'loops' reaches 'maxloops'
+	// Run this main loop until 'OPEN' queue is exhausted or 'loops' reaches 'maxloops'
 	while !ds_priority_empty(OPEN)&&loops<maxloops{
 		
 		// Increase 'loops' count
@@ -69,15 +60,9 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 			// Set initial 'waypoint' pointer to 'goal'
 			waypoint=goal;
 			
-			// Destroy temporary data structures
+			// Clean up 'OPEN' and 'COST' and break out of main loop
 			ds_priority_destroy(OPEN);
 			ds_map_destroy(COST);
-			
-			// Debugging
-			nodes=scans;
-			walls=bumps;
-			
-			// Algorithm solved, reak out of main loop
 			break;
 		}
 		
@@ -124,7 +109,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 				neighbor 'i's existing value in cost map (allows correction if better path opens) */
 				if !ds_map_exists(COST,neighbor)||price<COST[?neighbor]{
 					
-					// Debugging
+					// Demo GUI scan count
 					scans++;
 					
 					// Estimated distance to goal
@@ -136,10 +121,10 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 					// Break ties by following trend vector
 					var trend=abs(t1*t2-t2*t1)*tiebreaker;
 					
-					// Calculate the heuristic by combining distance and trend
+					// Calculate heuristic by combining distance and trend
 					var heuristic=hx+hy+trend;
 					
-					// Calculate neighbor 'i' priority by combining its price with the heuristic
+					// Calculate neighbor 'i' priority by combining its price with heuristic
 					var priority=price+heuristic;
 					
 					// Add neighbor 'i' to OPEN queue with calculated priority
@@ -152,15 +137,11 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 					PARENT[?neighbor]=cur;
 				}
 			}
-			else{
-				
-				// Debugging
-				bumps++;
-			}
 		}
 	}
 	
 /* POST-PATHFINDING CHECKS */
+
 
 	// If max iteration count reached
 	if loops>=maxloops return(false);
@@ -168,21 +149,21 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	// If goal is inaccessible
 	if !waypoint return(false);
 	
-/* PATH CREATION */
+/* PATH CREATION - This block adds the pointers from above into a ds_list 'path' */
 	
-	// Clear the PATH list
+	// Create 'path' list
 	var path=ds_list_create();
 	
-	// Loop until waypoint node is the start node
+	// Loop this until 'waypoint' pointer matches 'start' pointer
 	while waypoint!=start{
 		
-		// Debugging
-		pathlen++;
+		// Demo GUI path size string
+		length++;
 		
-		// Add the waypoint to the beginning of the path list (PATH)
+		// Add 'waypoint' pointer to 'path' list
 		ds_list_insert(path,0,waypoint);
 		
-		// Get x/y coordinates of waypoint
+		// Get x/y coordinates of 'waypoint' pointer
 		var wx=waypoint>>SHIFT,wy=waypoint&MASK;
 		
 		// GUI Debugging
@@ -198,8 +179,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 			ds_list_insert(path,0,waypoint);
 			
 			// GUI Debugging
-			SPRITE[#gx,gy]=sGoal;
-			SPRITE[#sx,sy]=sStart;
+			SPRITE[#gx,gy]=sGoal;SPRITE[#sx,sy]=sStart;
 			
 			// Break out of the path-building loop
 			break;
@@ -208,7 +188,6 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	
 /* CLEANUP */
 	ds_map_destroy(PARENT);
-	length=pathlen;
 	var us2=get_timer();
 	time=us2-us;
 	return(path);
