@@ -22,8 +22,7 @@ if scans!=0{
 	lengthstring=string("The A* script found a ("+string(length)+")-tile long path ");
 	timestring=string("in ("+string(time/1000)+") milliseconds, ");
 	scanstring=string("analyzing ("+string(scans)+") total nodes ");
-	//wallstring=string("while avoiding "+string(walls)+" walls.");
-	debugstring=string(lengthstring)+string(timestring)+string(scanstring);//+string(wallstring);
+	debugstring=string(lengthstring)+string(timestring)+string(scanstring);
 	draw_text(32,6,debugstring);
 }
 

@@ -1,11 +1,15 @@
-function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
+function aStar(sx,sy,gx,gy,cols,rows,size,sides,blocked,maxscans){
 	
 /* CONFIGURATION */
+
+	// Bitwise short macros
+	#macro SHIFT 16						// Bitwise shortcut
+	#macro MASK 65535					// Bitwise shortcut
 	
 	// Demo debug vars
-	var us=get_timer();					// Debug timer in microseconds
-	scans=0;							// Debug counter that shows total scans
-	length=0;						// Debug counter that shows path length
+	var timer=get_timer();			// Debug timer in microseconds
+	scans=0;							// Instance variable on 'oPlayer' for demo 'tiles analyzed' string
+	length=0;							// Instance variable on 'oPlayer' for demo 'path length' string
 	
 	// Logic vars
 	var movecost=1;						// The 'cost' of a moving from node to node.
@@ -28,8 +32,8 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	if ds_list_find_index(blocked,start)||ds_list_find_index(blocked,goal) return(false);
 	
 	// Clear grids 'SPRITE' and 'STEPS' used for demo GUI
-	ds_grid_clear(SPRITE,0);
-	ds_grid_clear(STEPS,0);
+	ds_grid_clear(SPRITE,0);	// Instance grid on 'oPlayer' for demo tile sprites GUI
+	ds_grid_clear(STEPS,0);		// Instance grid on 'oPlayer' for demo tile step count GUI
 	
 	// Set 'COST' map's 'start' pointer to 0
 	COST[?start]=0;
@@ -40,13 +44,13 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	// Add 'start' pointer to 'OPEN' priority queue
 	ds_priority_add(OPEN,start,COST[?start]);
 	
-	// Set a 'loops' limit, configurable in the create step of 'oPlayer'
-	var loops=0,maxloops=maxscans;
+	// Set a 'loops' limit specified as an argument
+	var loops=0;
 
 /* MAIN LOGIC LOOP */
 	
-	// Run this main loop until 'OPEN' queue is exhausted or 'loops' reaches 'maxloops'
-	while !ds_priority_empty(OPEN)&&loops<maxloops{
+	// Run this main loop until 'OPEN' queue is exhausted or 'loops' reaches 'maxscans'
+	while !ds_priority_empty(OPEN)&&loops<maxscans{
 		
 		// Increase 'loops' count
 		loops++;
@@ -70,7 +74,7 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 		var cx=cur>>SHIFT,cy=cur&MASK;
 		
 		// 'Graph' neighbors of current node
-		for (var i=0;i<SIDES;i++){
+		for (var i=0;i<sides;i++){
 			
 			// Set neighbor 'i' coordinates 'nx,ny' to current node's coordinates
 			var nx=cx,ny=cy;
@@ -109,9 +113,6 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 				neighbor 'i's existing value in cost map (allows correction if better path opens) */
 				if !ds_map_exists(COST,neighbor)||price<COST[?neighbor]{
 					
-					// Demo GUI scan count
-					scans++;
-					
 					// Estimated distance to goal
 					var hx=abs(gx*size-nx*size),hy=abs(gy*size-ny*size);
 					
@@ -135,6 +136,9 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 					
 					// Set neighbor 'i' parent to current node
 					PARENT[?neighbor]=cur;
+					
+					// Demo GUI scan count
+					scans++;
 				}
 			}
 		}
@@ -142,9 +146,8 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	
 /* POST-PATHFINDING CHECKS */
 
-
 	// If max iteration count reached
-	if loops>=maxloops return(false);
+	if loops>=maxscans return(false);
 	
 	// If goal is inaccessible
 	if !waypoint return(false);
@@ -188,7 +191,6 @@ function aStar(sx,sy,gx,gy,cols,rows,size,blocked){
 	
 /* CLEANUP */
 	ds_map_destroy(PARENT);
-	var us2=get_timer();
-	time=us2-us;
+	time=get_timer()-timer;
 	return(path);
 }

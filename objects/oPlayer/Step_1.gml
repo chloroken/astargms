@@ -7,7 +7,13 @@ if !pathing{
 	if mouse_check_button_pressed(PATH){
 		
 			// Generate path using astar script
-			path=aStar(x div SIZE,y div SIZE,round(mouse_x div SIZE),round(mouse_y div SIZE),COLS,ROWS,SIZE,global.BLOCKED);
+			path=aStar(
+			x div SIZE,
+			y div SIZE,
+			round(mouse_x div SIZE),
+			round(mouse_y div SIZE),
+			COLS,ROWS,SIZE,SIDES,
+			global.BLOCKED,1000);
 			
 			// Ensure a path exists
 			if path&&ds_list_size(path){
