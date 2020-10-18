@@ -1,6 +1,26 @@
 function aStar(startx,starty,goalx,goaly,cols,rows,size,sides,blocked,maxloops){
 
 /*
+CUSTOM A* PATHFINDING FOR GMS - BY CHLOROKEN (KEN KOEPPLINGER)
+Github: https://github.com/chloroken/astargms
+Twitter: https://twitter.com/chloroken
+Email: chloroken@gmail.com
+
+The pathfinding article I used to create this A* algorithm:
+http://theory.stanford.edu/~amitp/GameProgramming/AStarComparison.html
+*/
+
+/*
+TABLE OF CONTENTS
+	I. Initialization (macros, variables, and data structures)
+	II. Pathfinding Logic (solve for an ideal path)
+		• Neighbor-Graph Function (scan neighboring tiles)
+		• Path-Selection Heuristic (choose best neighbor)
+	III. Path creation logic (follow breadcrumbs backwards)
+	IV.	Cleanup (destroy data structures)
+*/
+
+/*
 =================
 I. INITIALIZATION
 =================
@@ -64,7 +84,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		// Bitwise X and Y coordinates 'currentx' and 'currenty' from 'currentpointer' 
 		var currentx=currentpointer>>SHIFT,currenty=currentpointer&MASK;
 		
-		/* NEIGHBOR GRAPH FUNCTION */
+		/* NEIGHBOR-GRAPH FUNCTION */
 		
 		// Graph loop where 'n' is a side of a tile
 		for (var n=0;n<sides;n++){
@@ -99,21 +119,21 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 				// Set 'price' to 'currentpointer' value in 'COSTMAP' plus 'movecost'
 				price=COSTMAP[?currentpointer]+movecost;
 				
-				/* PATH-SELECTION ALGORITHM */
+				/* PATH-SELECTION HEURISTIC */
 				
 				// If 'neighborpointer' isn't in 'COSTMAP', or a cheaper path presents itself
 				if !ds_map_exists(COSTMAP,neighborpointer)||price<COSTMAP[?neighborpointer]{
 					
-					// Get 'distance' from neighbor 'n' to goal coordinates 'goalx' & 'goaly' (lengthdir equivalent)
+					// Use a lengthdir function to get 'distance' component of heuristic (greedy-first pathfinding)
 					var distance=abs(goalx-neighborx+goaly-neighbory);
 					
 					// Create a 'trend' vector for breaking ties
 					var trend=abs((neighborx-goalx)*(startx-goalx)-(neighbory-goaly)*(starty-goaly))*tiebreaker;
 					
-					// Calculate 'heuristic' by combining 'distance' and 'trend' before multiplying by 'size'
+					// Calculate 'heuristic' by combining 'distance' and 'trend' multiplied by 'size' (corrected greedy-first)
 					var heuristic=(distance+trend)*size;
 					
-					// Calculate 'priority' by combining 'price' & 'heuristic'
+					// Calculate 'priority' by combining 'price' & 'heuristic' (A* pathfinding)
 					var priority=price+heuristic;
 					
 					// Add 'neighborpointer' to 'OPENQUEUE' with priority 'priority'

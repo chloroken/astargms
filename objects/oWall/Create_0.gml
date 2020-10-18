@@ -1,5 +1,6 @@
+/// @desc Auto-add to 'blocked' grid
+
 // Add this wall to the blocked grid
-var blockerX=x div SIZE;
-var blockerY=y div SIZE;
-var blockernode=blockerX<<SHIFT|blockerY;
-ds_list_add(global.BLOCKED,blockernode);
+var blockerx=x div SIZE,blockery=y div SIZE;
+var blockerpointer=blockerx<<SHIFT|blockery;
+ds_list_add(global.BLOCKED,blockerpointer);
