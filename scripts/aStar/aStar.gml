@@ -15,7 +15,8 @@ TABLE OF CONTENTS
 	I. Initialization (macros, variables, and data structures)
 	II. Pathfinding Logic (solve for an ideal path)
 		• Neighbor-Graph Function (scan neighboring tiles)
-		• Path-Selection Heuristic (choose best neighbor)
+		• Path-Selection Heuristic (choose best neighbor tile)
+		• Solution protocol (last breadcrumb, data structure cleanup)
 	III. Path creation logic (follow breadcrumbs backwards)
 	IV.	Cleanup (destroy data structures)
 */
@@ -152,7 +153,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		}
 	}
 				
-	/* PATHFINDING SUCCESSFUL */
+	/* SOLUTION PROTOCOL */
 		
 	// If 'startpointer' matches 'goalpointer'
 	else{

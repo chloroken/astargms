@@ -27,7 +27,7 @@ if scans!=0{
 }
 
 // Draw demo credit string
-creditstring="CREDIT: Custom A* by Chloroken (Ken Koepplinger) 10.14.2020";
+creditstring="CREDIT: Custom A* by Chloroken (Ken Koepplinger) 10.18.2020";
 draw_text(room_width-string_width(creditstring)-32,room_height-string_height(creditstring)-6,creditstring);
 
 // Draw player object
