@@ -1,141 +1,138 @@
-function aStar(sx,sy,gx,gy,cols,rows,size,sides,blocked,maxscans){
-	
-/* CONFIGURATION */
+function aStar(startx,starty,goalx,goaly,cols,rows,size,sides,blocked,maxloops){
 
-	// Bitwise short macros
-	#macro SHIFT 16						// Bitwise shortcut
-	#macro MASK 65535					// Bitwise shortcut
-	
-	// Demo debug vars
-	var timer=get_timer();			// Debug timer in microseconds
-	scans=0;							// Instance variable on 'oPlayer' for demo 'tiles analyzed' string
-	length=0;							// Instance variable on 'oPlayer' for demo 'path length' string
-	
-	// Logic vars
-	var movecost=1;						// The 'cost' of a moving from node to node.
-	var tiebreaker=.001;				// A tiebreaker variable used to create more realistic paths.
-	
-	// Data structures
-	var OPEN=ds_priority_create();		// A priority queue of 'open' nodes.
-	var COST=ds_map_create();			// A map of cumulative 'cost' of each node in our path.
-	var PARENT=ds_map_create();			// A nested map that lets us trace backwards from goal to start.
-	
-/* INITIALIZATION */
-	
-	// Translate start/end coordinates 'sx','sy','gx','gy' to pointers 'start' and 'goal'
-	var start=sx<<SHIFT|sy,goal=gx<<SHIFT|gy;
-	
-	// Ensure 'start' isn't 'goal'
-	if start==goal return(false);
-	
-	// Ensure 'start' nor 'goal' is 'blocked'
-	if ds_list_find_index(blocked,start)||ds_list_find_index(blocked,goal) return(false);
-	
-	// Clear grids 'SPRITE' and 'STEPS' used for demo GUI
-	ds_grid_clear(SPRITE,0);	// Instance grid on 'oPlayer' for demo tile sprites GUI
-	ds_grid_clear(STEPS,0);		// Instance grid on 'oPlayer' for demo tile step count GUI
-	
-	// Set 'COST' map's 'start' pointer to 0
-	COST[?start]=0;
-	
-	// Set the initial 'waypoint' to -1 to calibrate to 0 after first run
-	var waypoint=-1;
-	
-	// Add 'start' pointer to 'OPEN' priority queue
-	ds_priority_add(OPEN,start,COST[?start]);
-	
-	// Set a 'loops' limit specified as an argument
-	var loops=0;
+/*///////////////////////////////////////////////////////////////
+/																/
+/						I. INITIALIZATION						/
+/																/
+///////////////////////////////////////////////////////////////*/
 
-/* MAIN LOGIC LOOP */
+// Bitwise shortcut macros
+#macro SHIFT 16						// Bitwise extracting X coordinate from a pointer
+#macro MASK 65535					// Bitwise extracting Y coordinate from a pointer
 	
-	// Run this main loop until 'OPEN' queue is exhausted or 'loops' reaches 'maxscans'
-	while !ds_priority_empty(OPEN)&&loops<maxscans{
-		
-		// Increase 'loops' count
-		loops++;
+// DEMO GUI (removable code)
+var timer=get_timer();				// Debug timer in microseconds
+scans=0;length=0;					// Instance variables on 'oPlayer' for demo tiles GUI
+	
+// Local lever variables
+var movecost=1;						// This can be tied to the tiles themselves, but for demo purposes is set to 1
+var tiebreaker=.001;				// A tiebreaker variable used to create more realistic paths
+	
+// Bitwise given coordinates 'startx' & 'starty' to 'startpointer', and 'goalx' & 'goaly' to 'goalpointer'
+var startpointer=startx<<SHIFT|starty,goalpointer=goalx<<SHIFT|goaly;
+	
+// Ensure possibility of a path
+if startpointer==goalpointer||ds_list_find_index(blocked,startpointer)||ds_list_find_index(blocked,goalpointer) return(false);
+	
+// Local data structures
+var OPENQUEUE=ds_priority_create();	// A priority queue of candidate tiles to be analyzed by the algorithm
+var COSTMAP=ds_map_create();		// A map of cumulative cost of tiles (used to find better paths when presented)
+var PARENTMAP=ds_map_create();		// A breadcrumb trail from the goal, which will ultimately become our path
+	
+// DEMO GUI (removable code)
+ds_grid_clear(SPRITE,0);
+ds_grid_clear(STEPS,0);
 
-		// Get current pointer 'cur' by removing lowest priority value from 'OPEN' priority queue
-		var cur=ds_priority_delete_min(OPEN);
+/*///////////////////////////////////////////////////////////////////
+/																	/
+/						II. PATHFINDING LOGIC						/
+/																	/
+/				This block solves for an ideal path.				/
+/																	/
+///////////////////////////////////////////////////////////////////*/
+	
+// Add 'startpointer' to 'COSTMAP'
+COSTMAP[?startpointer]=0;
+	
+// Add 'startpointer' to 'OPENQUEUE'
+ds_priority_add(OPENQUEUE,startpointer,COSTMAP[?startpointer]);
+	
+// Set 'loops' count to zero
+var loops=0;
+	
+/* ••••••••••••••••••••••••
+   MAIN A* PATHFINDING LOOP 
+   •••••••••••••••••••••••• */
+
+// Run until 'OPENQUEUE' is exhausted or 'loops' exceeds 'maxloops')
+while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		
-		// Check if 'cur' pointer is 'goal' pointer
-		if cur==goal{
-			
-			// Set initial 'waypoint' pointer to 'goal'
-			waypoint=goal;
-			
-			// Clean up 'OPEN' and 'COST' and break out of main loop
-			ds_priority_destroy(OPEN);
-			ds_map_destroy(COST);
-			break;
-		}
+	// Increase loop count
+	loops++;
+
+	// Get 'currentpointer' from 'OPENQUEUE'
+	var currentpointer=ds_priority_delete_min(OPENQUEUE);
 		
-		// Extract current node's coordinates 'cx,cy' from current node (bitwise operators)
-		var cx=cur>>SHIFT,cy=cur&MASK;
+	// If 'currentpointer' and 'goalpointer' pointers don't match
+	if currentpointer!=goalpointer{
 		
-		// 'Graph' neighbors of current node
-		for (var i=0;i<sides;i++){
+		// Bitwise X and Y coordinates 'currentx' and 'currenty' from 'currentpointer' 
+		var currentx=currentpointer>>SHIFT,currenty=currentpointer&MASK;
+
+		/* ••••••••••••••••••••••••
+		   NEIGHBOR GRAPH FUNCTION 
+		   •••••••••••••••••••••••• */
+		
+		// Graph loop where 'n' is a side of a tile
+		for (var n=0;n<sides;n++){
 			
-			// Set neighbor 'i' coordinates 'nx,ny' to current node's coordinates
-			var nx=cx,ny=cy;
+			// Copy current coordinates 'currentx' and 'currenty' onto 'neighborx' and 'neighbory'
+			var neighborx=currentx,neighbory=currenty;
 			
-			// Set break flag to avoid scanning out of bounds nodes
+			// Set a break flag to avoid scanning tiles that are out of bounds
 			var go=true;
 			
-			// Adjust neighbor x/y coordinates based on current graph loop iteration 'i'
-			switch i{
-				case 0: if nx>0	nx--;else go=!go;break;		// Left neighbor
-				case 1: if ny>0	ny--;else go=!go;break;		// Top neighbor
-				case 2: if nx<cols nx++;else go=!go;break;	// Right neighbor
-				case 3: if ny<rows ny++;else go=!go;break;	// Bottom neighbor
+			// Iteration-based neighbor selection (check left, above, right, below)
+			switch n{
+				case 0: if neighborx>0 neighborx--;else go=!go;break;		// Left
+				case 1: if neighbory>0 neighbory--;else go=!go;break;		// Top
+				case 2: if neighborx<cols neighborx++;else go=!go;break;	// Right
+				case 3: if neighbory<rows neighbory++;else go=!go;break;	// Bottom
 			}
 			
-			// If the neighbor 'i' is out of bounds, break graph loop (trashing neighbor 'i')
+			// Trash neighbor 'n' if it's out of map bounds
 			if !go break;
 			
-			// Convert adjusted coordinates to neighboring node 'neighbor' (bitwise operators)
-			var neighbor=nx<<SHIFT|ny;
+			// Bitwise 'neighborx' and 'neighbory' onto 'neighborpointer'
+			var neighborpointer=neighborx<<SHIFT|neighbory;
 			
-			// If neighbor 'i' isn't on BLOCKED list
-			if !ds_list_find_index(blocked,neighbor){
+			// If 'neighborpointer' isn't on 'blocked' list
+			if !ds_list_find_index(blocked,neighborpointer){
 				
-				// Set the sprite for the GUI
-				SPRITE[#nx,ny]=sScan;
+				// DEMO GUI (removable code)
+				SPRITE[#neighborx,neighbory]=sScan;
+				if STEPS[#neighborx,neighbory]==0&&neighborx!=startx||neighbory!=starty STEPS[#neighborx,neighbory]=loops;
 				
-				// Set the 'step' for the GUI (the number that appears on each tile)
-				if STEPS[#nx,ny]==0&&nx!=sx||ny!=sy STEPS[#nx,ny]=loops;
+				// Set 'price' to 'currentpointer' value in 'COSTMAP' plus 'movecost'
+				var price=COSTMAP[?currentpointer]+movecost;
 				
-				/* Calculate price by searching cost map for the current node's cumulative
-				cost and increasing it by the 'movement cost' of the tile itself */
-				var price=COST[?cur]+movecost;
+				/* ••••••••••••••••••••••••
+				   PATH-SELECTION ALGORITHM 
+				   •••••••••••••••••••••••• */
 				
-				/* If neighbor 'i' isn't in cost map, or its calculated price is lower than
-				neighbor 'i's existing value in cost map (allows correction if better path opens) */
-				if !ds_map_exists(COST,neighbor)||price<COST[?neighbor]{
+				// If 'neighborpointer' isn't in 'COSTMAP', or a cheaper path presents itself
+				if !ds_map_exists(COSTMAP,neighborpointer)||price<COSTMAP[?neighborpointer]{
 					
-					// Estimated distance to goal
-					var hx=abs(gx*size-nx*size),hy=abs(gy*size-ny*size);
+					// Get 'distance' from neighbor 'n' to goal coordinates 'goalx' & 'goaly' (lengthdir equivalent)
+					var distance=abs(goalx-neighborx+goaly-neighbory);
 					
-					// Create a vector from start to goal
-					var t1=nx-gx,t1=ny-gy,t2=sx-gx,t2=sy-gy;
+					// Create a 'trend' vector for breaking ties
+					var trend=abs((neighborx-goalx)*(startx-goalx)-(neighbory-goaly)*(starty-goaly))*tiebreaker;
 					
-					// Break ties by following trend vector
-					var trend=abs(t1*t2-t2*t1)*tiebreaker;
+					// Calculate 'heuristic' by combining 'distance' and 'trend' before multiplying by 'size'
+					var heuristic=(distance+trend)*size;
 					
-					// Calculate heuristic by combining distance and trend
-					var heuristic=hx+hy+trend;
-					
-					// Calculate neighbor 'i' priority by combining its price with heuristic
+					// Calculate 'priority' by combining 'price' & 'heuristic'
 					var priority=price+heuristic;
 					
-					// Add neighbor 'i' to OPEN queue with calculated priority
-					ds_priority_add(OPEN,neighbor,priority);
+					// Add 'neighborpointer' to 'OPENQUEUE' with priority 'priority'
+					ds_priority_add(OPENQUEUE,neighborpointer,priority);
 					
-					// Set neighbor 'i' cost to the calculated price
-					COST[?neighbor]=price;
+					// Set 'neighborpointer' value in 'COSTMAP' to 'price'
+					COSTMAP[?neighborpointer]=price;
 					
-					// Set neighbor 'i' parent to current node
-					PARENT[?neighbor]=cur;
+					// Set 'neighborpointer' value map in 'PARENTMAP' to 'currentpointer'
+					PARENTMAP[?neighborpointer]=currentpointer;
 					
 					// Demo GUI scan count
 					scans++;
@@ -143,54 +140,85 @@ function aStar(sx,sy,gx,gy,cols,rows,size,sides,blocked,maxscans){
 			}
 		}
 	}
-	
-/* POST-PATHFINDING CHECKS */
-
-	// If max iteration count reached
-	if loops>=maxscans return(false);
-	
-	// If goal is inaccessible
-	if !waypoint return(false);
-	
-/* PATH CREATION - This block adds the pointers from above into a ds_list 'path' */
-	
-	// Create 'path' list
-	var path=ds_list_create();
-	
-	// Loop this until 'waypoint' pointer matches 'start' pointer
-	while waypoint!=start{
+				
+	/* ••••••••••••••••••••••
+	   PATHFINDING SUCCESSFUL 
+	   •••••••••••••••••••••• */
 		
-		// Demo GUI path size string
-		length++;
-		
-		// Add 'waypoint' pointer to 'path' list
-		ds_list_insert(path,0,waypoint);
-		
-		// Get x/y coordinates of 'waypoint' pointer
-		var wx=waypoint>>SHIFT,wy=waypoint&MASK;
-		
-		// GUI Debugging
-		SPRITE[#wx,wy]=sPath;
-		
-		// Set current waypoint to its parent waypoint
-		waypoint=PARENT[?waypoint];
-		
-		// If waypoint is our final waypoint
-		if waypoint==start{
+	// If 'startpointer' matches 'goalpointer'
+	else{
+				
+		// Set 'pathpointer' (used in path creation section) to 'goalpointer'
+		var pathpointer=goalpointer;
 			
-			// Insert the waypoint in the path list
-			ds_list_insert(path,0,waypoint);
+		// Clean up local data structures (we still need 'PARENTMAP' for path creation)
+		ds_priority_destroy(OPENQUEUE);
+		ds_map_destroy(COSTMAP);
 			
-			// GUI Debugging
-			SPRITE[#gx,gy]=sGoal;SPRITE[#sx,sy]=sStart;
-			
-			// Break out of the path-building loop
-			break;
-		}
+		// Path complete, break out of main pathfinding loop
+		break;
 	}
+}
+
+/*///////////////////////////////////////////////////////////////////
+/																	/
+/					III. PATH CREATION LOGIC						/
+/																	/
+/		Follow the breadcrumbs to generate a 'path' list.			/
+/																	/
+///////////////////////////////////////////////////////////////////*/
+
+// If 'loops' exceeds 'maxloop's or 'pathpointer' doesn't exist
+if loops>=maxloops||!pathpointer{
+	ds_map_destroy(PARENTMAP);
+	return(false);
+}
 	
-/* CLEANUP */
-	ds_map_destroy(PARENT);
-	time=get_timer()-timer;
-	return(path);
+// Create 'path' list
+var path=ds_list_create();
+	
+// Path creation loop (run until 'pathpointer' matches 'startpointer'(
+while pathpointer!=startpointer{
+		
+	// Add 'pathpointer' to 'path' list
+	ds_list_insert(path,0,pathpointer);
+		
+	// Bitwise coordinates 'pathx' & 'pathy' from 'pathpointer'
+	var pathx=pathpointer>>SHIFT,pathy=pathpointer&MASK;
+		
+	// DEMO GUI (removable code)
+	length++;
+	SPRITE[#pathx,pathy]=sPath;
+		
+	// Set 'pathpointer' to its value in 'PARENTMAP'
+	pathpointer=PARENTMAP[?pathpointer];
+		
+	// If 'pathpointer' matches 'startpointer'
+	if pathpointer==startpointer{
+			
+		// DEMO GUI (removable code)
+		SPRITE[#goalx,goaly]=sGoal;SPRITE[#startx,starty]=sStart;
+		
+		// Insert 'pathpointer' in 'path' list
+		ds_list_insert(path,0,pathpointer);
+			
+		// Break out of path loop
+		break;
+	}
+}
+
+/*///////////////////////////////////////////////////////////////////
+/																	/
+/							IV. CLEANUP								/
+/																	/
+///////////////////////////////////////////////////////////////////*/
+
+// Clean up remaining local data structure 'PARENTMAP'
+ds_map_destroy(PARENTMAP);
+	
+// DEMO GUI (removable code)
+time=get_timer()-timer;
+	
+// Deliver list of pointers 'path' to calling object/script
+return(path);
 }
