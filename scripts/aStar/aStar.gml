@@ -1,9 +1,9 @@
 function aStar(startx,starty,goalx,goaly,cols,rows,size,sides,blocked,maxloops){
 
 /*
-	=================
-	I. INITIALIZATION
-	=================
+=================
+I. INITIALIZATION
+=================
 */
 
 // Bitwise shortcut macros
