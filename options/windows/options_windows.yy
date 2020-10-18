@@ -1,8 +1,8 @@
 {
-  "option_windows_display_name": "Custom A* Pathfinding for GMS2+",
+  "option_windows_display_name": "Custom A* Pathfinding Demo",
   "option_windows_executable_name": "${project_name}",
   "option_windows_version": "1.0.0.0",
-  "option_windows_company_info": "chloroken",
+  "option_windows_company_info": "chloroken (ken koepplinger)",
   "option_windows_product_info": "",
   "option_windows_copyright_info": "",
   "option_windows_description_info": "",
