@@ -34,9 +34,9 @@ ds_grid_clear(SPRITE,0);
 ds_grid_clear(STEPS,0);
 
 /*
-	=====================
-	II. PATHFINDING LOGIC
-	=====================
+=====================
+II. PATHFINDING LOGIC
+=====================
 */
 	
 // Add 'startpointer' to 'COSTMAP'
@@ -49,7 +49,7 @@ ds_priority_add(OPENQUEUE,startpointer,COSTMAP[?startpointer]);
 var loops=0;
    
 /*
-	 MAIN A* PATHFINDING LOOP 
+	MAIN A* PATHFINDING LOOP 
 */
 
 // Run until 'OPENQUEUE' is exhausted or 'loops' exceeds 'maxloops')
@@ -68,7 +68,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		var currentx=currentpointer>>SHIFT,currenty=currentpointer&MASK;
 		
 		/*
-		   NEIGHBOR GRAPH FUNCTION 
+		  NEIGHBOR GRAPH FUNCTION 
 		*/
 		
 		// Graph loop where 'n' is a side of a tile
@@ -105,7 +105,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 				var price=COSTMAP[?currentpointer]+movecost;
 				
 				/*
-					PATH-SELECTION ALGORITHM 
+				PATH-SELECTION ALGORITHM 
 				*/
 				
 				// If 'neighborpointer' isn't in 'COSTMAP', or a cheaper path presents itself
@@ -140,7 +140,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 	}
 				
 	/*
-		PATHFINDING SUCCESSFUL 
+	PATHFINDING SUCCESSFUL 
 	*/
 		
 	// If 'startpointer' matches 'goalpointer'
@@ -159,9 +159,9 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 }
 
 /*
-	========================
-	III. PATH CREATION LOGIC
-	========================
+========================
+III. PATH CREATION LOGIC
+========================
 */
 
 // If 'loops' exceeds 'maxloop's or 'pathpointer' doesn't exist
@@ -204,9 +204,9 @@ while pathpointer!=startpointer{
 }
 
 /*
-	===========
-	IV. CLEANUP
-	===========
+===========
+IV. CLEANUP
+===========
 */
 
 // Clean up remaining local data structure 'PARENTMAP'
