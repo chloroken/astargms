@@ -8,10 +8,6 @@ if pathing&&!ds_list_empty(path){
 	// Translate binary pathpointer into coordinates using bitwise
 	var pathx=(pathpointer>>SHIFT)*SIZE,pathy=(pathpointer&MASK)*SIZE;
 	
-	/* •••••••••••••••••
-	   GET NEXT WAYPOINT
-       ••••••••••••••••• */
-	
 	// If player object is at current pathpointer
 	if x=pathx&&y=pathy{
 		
@@ -47,10 +43,6 @@ if pathing&&!ds_list_empty(path){
 			exit;
 		}
 	}
-	
-	/* •••••••••••••••••••••••
-	   MOVE OBJECT TO WAYPOINT
-       ••••••••••••••••••••••• */
 	   
 	// If player isn't touching a pathpointer
 	else{
