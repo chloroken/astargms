@@ -49,7 +49,7 @@ ds_priority_add(OPENQUEUE,startpointer,COSTMAP[?startpointer]);
 var loops=0;
    
 /*
-	MAIN A* PATHFINDING LOOP 
+MAIN A* PATHFINDING LOOP 
 */
 
 // Run until 'OPENQUEUE' is exhausted or 'loops' exceeds 'maxloops')
@@ -68,7 +68,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		var currentx=currentpointer>>SHIFT,currenty=currentpointer&MASK;
 		
 		/*
-		  NEIGHBOR GRAPH FUNCTION 
+		NEIGHBOR GRAPH FUNCTION 
 		*/
 		
 		// Graph loop where 'n' is a side of a tile
