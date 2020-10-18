@@ -39,18 +39,15 @@ II. PATHFINDING LOGIC
 =====================
 */
 	
-// Add 'startpointer' to 'COSTMAP'
-COSTMAP[?startpointer]=0;
-	
-// Add 'startpointer' to 'OPENQUEUE'
-ds_priority_add(OPENQUEUE,startpointer,COSTMAP[?startpointer]);
+// Add 'startpointer' to 'COSTMAP' and 'OPENQUEUE'
+var price=0;
+COSTMAP[?startpointer]=price;
+ds_priority_add(OPENQUEUE,startpointer,price);
+   
+/* MAIN A* PATHFINDING LOOP */
 	
 // Set 'loops' count to zero
 var loops=0;
-   
-/*
-MAIN A* PATHFINDING LOOP 
-*/
 
 // Run until 'OPENQUEUE' is exhausted or 'loops' exceeds 'maxloops')
 while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
@@ -67,9 +64,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		// Bitwise X and Y coordinates 'currentx' and 'currenty' from 'currentpointer' 
 		var currentx=currentpointer>>SHIFT,currenty=currentpointer&MASK;
 		
-		/*
-		NEIGHBOR GRAPH FUNCTION 
-		*/
+		/* NEIGHBOR GRAPH FUNCTION */
 		
 		// Graph loop where 'n' is a side of a tile
 		for (var n=0;n<sides;n++){
@@ -102,11 +97,9 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 				if STEPS[#neighborx,neighbory]==0&&neighborx!=startx||neighbory!=starty STEPS[#neighborx,neighbory]=loops;
 				
 				// Set 'price' to 'currentpointer' value in 'COSTMAP' plus 'movecost'
-				var price=COSTMAP[?currentpointer]+movecost;
+				price=COSTMAP[?currentpointer]+movecost;
 				
-				/*
-				PATH-SELECTION ALGORITHM 
-				*/
+				/* PATH-SELECTION ALGORITHM */
 				
 				// If 'neighborpointer' isn't in 'COSTMAP', or a cheaper path presents itself
 				if !ds_map_exists(COSTMAP,neighborpointer)||price<COSTMAP[?neighborpointer]{
@@ -139,9 +132,7 @@ while !ds_priority_empty(OPENQUEUE)&&loops<maxloops{
 		}
 	}
 				
-	/*
-	PATHFINDING SUCCESSFUL 
-	*/
+	/* PATHFINDING SUCCESSFUL */
 		
 	// If 'startpointer' matches 'goalpointer'
 	else{
