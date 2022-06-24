@@ -1,7 +1,7 @@
 function aStar(startx,starty,goalx,goaly,cols,rows,size,sides,blocked,maxloops){
 
 /*
-CUSTOM A* PATHFINDING FOR GMS - BY CHLOROKEN (KEN KOEPPLINGER)
+CUSTOM A* PATHFINDING FOR GMS - BY CHLOROKEN
 Github: https://github.com/chloroken/astargms
 Twitter: https://twitter.com/chloroken
 Email: chloroken@gmail.com
