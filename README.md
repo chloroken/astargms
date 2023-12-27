@@ -8,7 +8,7 @@ This program features custom pathfinding for GMS 2.3+ using an A* algorithm and 
 
 The demo is heavily annotated with comments on nearly every line to help you understand the various systems and logic involved. If you have any questions about the code or need help implementing custom pathfinding into your project, I'm happy to help. Email me (chloroken@gmail.com) or DM me on Twitter (https://twitter.com/chloroken) and I'll get back to you.
 
-![astargms](https://user-images.githubusercontent.com/72576960/96370672-aa665b00-112c-11eb-9580-f4949b64eef3.gif)
+https://user-images.githubusercontent.com/72576960/96370672-aa665b00-112c-11eb-9580-f4949b64eef3.gif
 *Blue squares represent 'scanned' tiles, pink squares represent an 'ideal' path*
 
 # DEMO FEATURES:
